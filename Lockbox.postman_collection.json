@@ -1,0 +1,1145 @@
+{
+	"info": {
+		"_postman_id": "013b2d38-1efe-4c6d-ba82-ef45f45c3680",
+		"name": "Lockbox",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4770991",
+		"_collection_link": "https://cloudy-water-367670.postman.co/workspace/pardeep~82e6b55d-2bc6-4d63-8915-4a8d09985515/collection/4770991-013b2d38-1efe-4c6d-ba82-ef45f45c3680?action=share&source=collection_link&creator=4770991"
+	},
+	"item": [
+		{
+			"name": "On boarding",
+			"item": [
+				{
+					"name": "sign up",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone\":\"8894329479\",\r\n    \"countryCode\":\"+91\"\r\n}\r\n// {\r\n//     \"email\":\"pardeep1@yopmail.com\"\r\n// }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/user/sign_up",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"sign_up"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"{{userId}}\",\r\n    \"otp\": \"6812\",\r\n    \"type\":{{type}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/user/verify",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"verify"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "set_password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"{{userId}}\",\r\n    \"password\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/user/set_password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"set_password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add_dashboard_role",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"{{userId}}\",\r\n    \"role\": \"host\", \r\n    \"deviceToken\":\"555\", \"deviceType\":\"3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/user/add_dashboard_role",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"add_dashboard_role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "log_in",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \r\n    \"email\": \"parminder1@yopmail.com\",\r\n    \"password\": \"123456\", \r\n    \"deviceToken\":\"555\", \"deviceType\":\"3\"\r\n}\r\n// {\r\n//     \"phone\": \"8894329479\",\r\n//     \"countryCode\": \"+91\",\r\n//     \"password\": \"123456\",\r\n//     \"deviceToken\": \"555\",\r\n//     \"deviceType\": \"3\"\r\n// }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/user/log_in",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"log_in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send_otp",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// type: \"type must be 1 register, 2 resend register, 3 forget, 4 resend forget\r\n// {   \r\n//     \"email\": \"\",\r\n//     \"type\": 1\r\n// }\r\n{\r\n    \"phone\": \"8894329479\",\r\n    \"countryCode\": \"+91\",\r\n    \"type\": 3\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/user/send_otp",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"send_otp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "me",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"newuser@example.com\",\r\n  \"phone\": \"1234567890\",\r\n  \"countryCode\": \"+1\",\r\n  \"firstName\": \"John\",\r\n  \"lastName\": \"Doe\",\r\n  \"dashboardRole\": \"rent\",\r\n  \"bio\": \"Passionate software developer.\",\r\n  \"address\": \"123 Main Street, City, Country\",\r\n  \"latitude\": 37.7749,\r\n  \"longitude\": -122.4194,\r\n  \"work\": \"Software Engineer\",\r\n  \"smsNotification\": true,\r\n  \"emailNotification\": false,\r\n  \"currentPassword\": \"oldPassword123\",\r\n  \"newPassword\": \"newSecurePass123\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/user/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "change_email_phone",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n//   \"newEmail\": \"newuser@example.com\",//optional email or phone\r\n//   \"newPhone\": \"1234567890\",//optional phone or email\r\n//   \"newCountryCode\": \"+1\",// send with phone number only\r\n//   \"newOtp\": \"1234\",\r\n  \"type\": 1, // eamil for 1 phone for 2\r\n  \"typeFor\": 1// send otp for 1 and verify otp for 2\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/user/change_email_phone",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"change_email_phone"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "profile  image",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "profileImage",
+									"type": "file",
+									"src": "/C:/Users/Techwin/Downloads/image (15).png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/user/me/profile_update",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"me",
+								"profile_update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/user/me/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"me",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Listing",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "address",
+									"value": "123 Main St, Springfield",
+									"type": "text"
+								},
+								{
+									"key": "latitude",
+									"value": "37.7749",
+									"type": "text"
+								},
+								{
+									"key": "longitude",
+									"value": "-122.4194",
+									"type": "text"
+								},
+								{
+									"key": "spaceType",
+									"value": "warehouse",
+									"type": "text"
+								},
+								{
+									"key": "features",
+									"value": "[\"wifi\",\"climate_control\",\"security\"]",
+									"type": "text"
+								},
+								{
+									"key": "allowedStorage",
+									"value": "[\"wifi\",\"climate_control\",\"security\"]",
+									"type": "text"
+								},
+								{
+									"key": "length",
+									"value": "50",
+									"type": "text"
+								},
+								{
+									"key": "width",
+									"value": "25",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "5000",
+									"type": "text"
+								},
+								{
+									"key": "tagline",
+									"value": "Spacious and Secure Warehouse",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "A fully equipped storage space in a prime location. Ideal for business storage needs.",
+									"type": "text"
+								},
+								{
+									"key": "policies",
+									"value": "No smoking, No pets",
+									"type": "text"
+								},
+								{
+									"key": "accessPolicy",
+									"value": "24/7 access allowed",
+									"type": "text"
+								},
+								{
+									"key": "frequency",
+									"value": "monthly",
+									"type": "text"
+								},
+								{
+									"key": "verified",
+									"value": "false",
+									"type": "text"
+								},
+								{
+									"key": "storageImages",
+									"type": "file",
+									"src": [
+										"/C:/Users/Techwin/Downloads/Screenshot_20241224-154220 (4).png",
+										"/C:/Users/Techwin/Downloads/Screenshot_20241224-154220 (3).png",
+										"/C:/Users/Techwin/Downloads/Screenshot_20241224-154220 (2).png",
+										"/C:/Users/Techwin/Downloads/Screenshot_20241224-154220 (1).png",
+										"/C:/Users/Techwin/Downloads/Screenshot_20241224-154220.png"
+									]
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/listing/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"listing",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "address",
+									"value": "123 Main St, Springfield",
+									"type": "text"
+								},
+								{
+									"key": "latitude",
+									"value": "37.7749",
+									"type": "text"
+								},
+								{
+									"key": "longitude",
+									"value": "-122.4194",
+									"type": "text"
+								},
+								{
+									"key": "spaceType",
+									"value": "warehouse",
+									"type": "text"
+								},
+								{
+									"key": "features",
+									"value": "[\"wifi\",\"climate_control\",\"security\"]",
+									"type": "text"
+								},
+								{
+									"key": "allowedStorage",
+									"value": "[\"wifi\",\"climate_control\",\"security\"]",
+									"type": "text"
+								},
+								{
+									"key": "length",
+									"value": "50",
+									"type": "text"
+								},
+								{
+									"key": "width",
+									"value": "25",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "5000",
+									"type": "text"
+								},
+								{
+									"key": "tagline",
+									"value": "Spacious and Secure Warehouse",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "A fully equipped storage space in a prime location. Ideal for business storage needs.",
+									"type": "text"
+								},
+								{
+									"key": "policies",
+									"value": "No smoking, No pets",
+									"type": "text"
+								},
+								{
+									"key": "accessPolicy",
+									"value": "24/7 access allowed",
+									"type": "text"
+								},
+								{
+									"key": "frequency",
+									"value": "monthly",
+									"type": "text"
+								},
+								{
+									"key": "storageImages",
+									"type": "file",
+									"src": [
+										"/C:/Users/Techwin/Downloads/Screenshot_20241224-154220 (4).png",
+										"/C:/Users/Techwin/Downloads/Screenshot_20241224-154220 (3).png",
+										"/C:/Users/Techwin/Downloads/Screenshot_20241224-154220 (2).png",
+										"/C:/Users/Techwin/Downloads/Screenshot_20241224-154220 (1).png",
+										"/C:/Users/Techwin/Downloads/Screenshot_20241224-154220.png"
+									]
+								},
+								{
+									"key": "images",
+									"value": "[\"url\"]",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/listing/67a208a293d33521d95a636d",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"listing",
+								"67a208a293d33521d95a636d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/listing/me?page=2&limit=2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"listing",
+								"me"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "2"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "find_all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/listing/find_listing?page=1&limit=10&allowedStorage=climate_control,wifi&price=20000&length=25&width=25&latitude=37.7749&longitude=-122.4194",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"listing",
+								"find_listing"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "allowedStorage",
+									"value": "climate_control,wifi"
+								},
+								{
+									"key": "price",
+									"value": "20000"
+								},
+								{
+									"key": "length",
+									"value": "25"
+								},
+								{
+									"key": "width",
+									"value": "25"
+								},
+								{
+									"key": "latitude",
+									"value": "37.7749"
+								},
+								{
+									"key": "longitude",
+									"value": "-122.4194"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/listing/67a208a293d33521d95a636d",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"listing",
+								"67a208a293d33521d95a636d"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Booking",
+			"item": [
+				{
+					"name": "request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"listingId\":\"67a208a293d33521d95a636d\",\r\n\"startDate\":\"2025-06-02\",\r\n\"endDate\":\"2025-06-04\",\r\n\"hostId\":\"67a1ad735bf881ad05913dd8\",\r\n\"content\":\"Hello I am looking to rent your room space to store some of  my skis and school supplies. I have a bunch of textbooks,  monitors that I need to put away for the year.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/booking/request",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"booking",
+								"request"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/listing/me?page=2&limit=2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"listing",
+								"me"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "2"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "find_all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/listing/find_listing?page=1&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"listing",
+								"find_listing"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "allowedStorage",
+									"value": "climate_control,wifi",
+									"disabled": true
+								},
+								{
+									"key": "price",
+									"value": "20000",
+									"disabled": true
+								},
+								{
+									"key": "length",
+									"value": "25",
+									"disabled": true
+								},
+								{
+									"key": "width",
+									"value": "25",
+									"disabled": true
+								},
+								{
+									"key": "latitude",
+									"value": "37.7749",
+									"disabled": true
+								},
+								{
+									"key": "longitude",
+									"value": "-122.4194",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/listing/67a208a293d33521d95a636d",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"listing",
+								"67a208a293d33521d95a636d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "status",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/booking/{{bookingId}}}/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"booking",
+								"{{bookingId}}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dispute",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"bookingId\":\"67a208a293d33521d95a636d\",\r\n\"desc\":\"Hello I am looking to rent your room space to store some of  my skis and school supplies. I have a bunch of textbooks,  monitors that I need to put away for the year.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/booking/dispute_storage",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"booking",
+								"dispute_storage"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cleck_in",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"bookingId\": \"67a208a293d33521d95a636d\",\r\n    \"agree\": true,\r\n    \"checkInDate\": \"2025-02-03T05:02:00:+00:00\",\r\n    \"note\": \"Hello I am looking to rent your room space to store some of  my skis and school supplies. I have a bunch of textbooks,  monitors that I need to put away for the year.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/booking/cleck_in",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"booking",
+								"cleck_in"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Message",
+			"item": [
+				{
+					"name": "conversation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/user/conversation",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"conversation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "messages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/user/conversation/67a36b2b5dd0107bd8e6aad2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"conversation",
+								"67a36b2b5dd0107bd8e6aad2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"admin@gmail.com\",\r\n    \"password\":\"12345678\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/log_in",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"log_in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "search user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/user/67b5a9c2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"user",
+								"67b5a9c2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get user details with userId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/user/67b5a9c268cf416e693f74be/details",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"user",
+								"67b5a9c268cf416e693f74be",
+								"details"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "create_stripe_account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/user/create_stripe_account",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"create_stripe_account"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "payment_method",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"paymentMethodId\":\"pm_1Qp7GTIcpq9QwBPqVdmRHZJY\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/user/payment_method",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"payment_method"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "payment_method",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/user/payment_method",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"payment_method"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "payment_method",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/user/payment_method/pm_1Qp7GTIcpq9QwBPqVdmRHZJY",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"payment_method",
+						"pm_1Qp7GTIcpq9QwBPqVdmRHZJY"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"var response = pm.response.json();\r",
+					"var userExists = response.userExists;\r",
+					"var admin = response.admin;\r",
+					"if (userExists) {\r",
+					"    userExists?._id ? pm.collectionVariables.set(\"userId\", userExists._id ):\"\"\r",
+					"    userExists?.accessToken ? pm.collectionVariables.set(\"accessToken\", userExists.accessToken ):\"\"\r",
+					"    pm.collectionVariables.set(\"type\", userExists?.email ? 1: 2 )\r",
+					"}\r",
+					"if(admin){\r",
+					"     admin?.accessToken ? pm.collectionVariables.set(\"accessToken\", admin.accessToken):\"\"\r",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://192.168.18.96:7777",
+			"type": "string"
+		},
+		{
+			"key": "dev_url",
+			"value": "http://192.168.18.96:9999",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "type",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
