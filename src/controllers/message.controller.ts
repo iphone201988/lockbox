@@ -36,7 +36,7 @@ export const getUserConversations = async (req: Request, res: Response, next: Ne
             },
             {
                 $lookup: {
-                    from: "bookings",
+                    from: "booking",
                     localField: "bookingId",
                     foreignField: "_id",
                     as: "bookingDetails"

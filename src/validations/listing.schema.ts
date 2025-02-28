@@ -114,14 +114,16 @@ export const disputeSchema = {
 };
 
 export const booking_statusSchema = {
-    body: Joi.object({
-        status: Joi.string().required().messages({
-            "string.empty": "status is required",
-        }),
+    params: Joi.object({
         bookingId: Joi.string().hex().length(24).required().messages({
             'string.hex': 'bookingId must be a hexadecimal string',
             'string.length': 'bookingId length must be 24 characters',
             "any.required": "bookingId is required in params"
+        }),
+    }),
+    body: Joi.object({
+        status: Joi.string().required().messages({
+            "string.empty": "status is required",
         }),
     })
 };

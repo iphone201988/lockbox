@@ -215,20 +215,45 @@ export const findListings = async (req: Request, res: Response, next: NextFuncti
 export const getListingById = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
         const id = req.params.id;
+        const userId = req.userId.toString();
         //user aggregates
         const pipeline = [
             {
                 $match: {
                     _id: new mongoose.Types.ObjectId(id),
                 },
+            },{
+                $lookup: {
+                    from: 'booking', // Assuming your booking collection is named 'bookings'
+                    let: { listingId: '$_id' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ['$listingId', '$$listingId'] },
+                                        { $eq: ['$renterId', new mongoose.Types.ObjectId(userId)] },
+                                        {
+                                            $in: ['$status', ['approve', 'under_review', 'dispute']]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: 'userBookings'
+                }
             },
-            // {
-            //     $project: {
-            //         _id: 1,
-            //         title: 1,
-            //         description: 1,
-            //     }
-            // }
+            {
+                $addFields: {
+                    isBooked: { $gt: [{ $size: '$userBookings' }, 0] }
+                }
+            },
+            {
+                $project: {
+                    userBookings: 0 // Optionally remove the temporary userBookings array from the output
+                }
+            }
         ];
         const result = await ListingModel.aggregate(pipeline);
         const listing = result[0];

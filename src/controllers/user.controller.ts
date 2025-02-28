@@ -540,3 +540,49 @@ export const changeEmailAndPhoneNumber = async (req: Request, res: Response, nex
         next(error);
     }
 }
+
+export const processPayment = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+    try {
+        const userExists = req.user;
+        const { amount, currency = 'cad', description, paymentMethodId } = req.body;
+
+        // Validate required fields
+        if (!amount) {
+            throw new BadRequestError('Amount is required');
+        }
+        if (!userExists.stripeCustomerId) {
+            throw new BadRequestError('No Stripe customer found for this user');
+        }
+
+        // Create Payment Intent
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: Math.round(amount * 100), // Convert to cents
+            currency,
+            customer: userExists.stripeCustomerId,
+            description: description || `Payment from ${userExists.email}`,
+            payment_method: paymentMethodId,
+            confirm: true, // Immediately confirm the payment
+            automatic_payment_methods: {
+                enabled: true,
+                allow_redirects: 'never' // Prevents redirect flows
+            }
+        });
+
+        // Check payment status
+        if (paymentIntent.status === 'succeeded') {
+            return SUCCESS(res, 200, "Payment processed successfully", {
+                paymentId: paymentIntent.id,
+                amount: paymentIntent.amount / 100, // Convert back to dollars
+                currency: paymentIntent.currency,
+                status: paymentIntent.status,
+                created: paymentIntent.created
+            });
+        } else {
+            throw new Error(`Payment failed with status: ${paymentIntent.status}`);
+        }
+
+    } catch (error) {
+        console.error('Payment processing error:', error);
+        next(error);
+    }
+};

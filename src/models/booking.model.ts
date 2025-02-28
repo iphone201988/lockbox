@@ -4,6 +4,7 @@ export interface IBooking extends Document {
     renterId: mongoose.Types.ObjectId;
     hostId: mongoose.Types.ObjectId;
     listingId: mongoose.Types.ObjectId;
+    insuranceId: mongoose.Types.ObjectId;
     amount: number;
     serviceFee: number;
     tax: number;
@@ -24,6 +25,10 @@ const bookingSchema = new Schema<IBooking>(
         listingId: {
             type: Schema.Types.ObjectId,
             ref: "listing",
+        },
+        insuranceId: {
+            type: Schema.Types.ObjectId,
+            ref: "insurancePlan",
         },
         amount: { type: Number, default: 0 },
         serviceFee: { type: Number, default: 0 },
