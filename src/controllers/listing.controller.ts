@@ -116,7 +116,7 @@ export const findListings = async (req: Request, res: Response, next: NextFuncti
                         coordinates: [parseFloat(longitude as string), parseFloat(latitude as string)]
                     },
                     distanceField: "distance",
-                    maxDistance: 5000, // 5km radius
+                    maxDistance: 20000, // 20km radius
                     spherical: true
                 }
             });
@@ -263,6 +263,7 @@ export const updateListing = async (req: Request, res: Response, next: NextFunct
         if (typeof images === "string") {
             try {
                 images = JSON.parse(images);
+                console.log("images",images)
             } catch (error) {
                 console.error("Error parsing images:", error);
                 throw new BadRequestError("Invalid images format");
@@ -300,7 +301,11 @@ export const updateListing = async (req: Request, res: Response, next: NextFunct
 
         
         if (req.files && Array.isArray(req.files)) {
-            listing.storageImages = req.files.map((file: any) => `/uploads/${file.filename}`);
+            if (req.files && Array.isArray(req.files)) {
+                const uploadedImages = req.files.map((file: any) => `/uploads/${file.filename}`);
+                listing.storageImages.push(...uploadedImages); // Push the new images into existing ones
+            }
+    
         }
         await listing.save();
 

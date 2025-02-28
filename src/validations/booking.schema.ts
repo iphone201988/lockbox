@@ -17,3 +17,10 @@ export const request_bookingSchema = {
         }),
     })
 };
+export const get_my_bokingchema = {
+    query: Joi.object({
+        page: Joi.number().integer().optional().default(1),
+        limit: Joi.number().integer().optional().default(10),
+        type: Joi.string().optional().default("future")
+    }),
+};
