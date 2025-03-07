@@ -58,6 +58,7 @@ export interface IListing extends Document {
   _id: ObjectId;
   userId: ObjectId;
   address: string | null;
+  city: string | null;
   spaceType: string | null;
   features?: Array<string>;
   allowedStorage?: Array<string>;

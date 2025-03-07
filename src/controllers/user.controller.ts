@@ -9,6 +9,7 @@ import { sendSms } from "../servers/twilioService";
 import path from 'path'
 //stripe
 import Stripe from "stripe";
+import NotificationModel from "../models/notification.model";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 
@@ -586,3 +587,14 @@ export const processPayment = async (req: Request, res: Response, next: NextFunc
         next(error);
     }
 };
+
+//home screen api 
+export const getHomeScreen = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+    try {
+        const user = req.user;
+        const notifications = await NotificationModel.find({ userId: user._id }).sort({ createdAt: -1 }).populate("listingId");
+        return SUCCESS(res, 200, "Home Screen", { notifications })
+    } catch (error) {
+        next(error)
+    }
+}

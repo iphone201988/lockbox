@@ -6,6 +6,10 @@ export const create_listingSchema = {
             .trim()
             .required()
             .messages({ "string.empty": "Address is required" }),
+        city: Joi.string()
+            .trim()
+            .required()
+            .messages({ "string.empty": "City is required" }),
 
         latitude: Joi.number()
             .required()
@@ -99,17 +103,16 @@ export const listing_by_idSchema = {
     }),
 };
 export const disputeSchema = {
-    params: Joi.object({
-        bookingId: Joi.string().hex().length(24).required().messages({
-            'string.hex': 'bookingId must be a hexadecimal string',
-            'string.length': 'bookingId length must be 24 characters',
-            "any.required": "bookingId is required in params"
-        }),
-    }),
+
     body: Joi.object({
         desc: Joi.string().required().messages({
             "string.empty": "desc is required",
-        })
+        }),
+        bookingId: Joi.string().hex().length(24).required().messages({
+            'string.hex': 'bookingId must be a hexadecimal string',
+            'string.length': 'bookingId length must be 24 characters',
+            "any.required": "bookingId is required in body"
+        }),
     })
 };
 
@@ -129,9 +132,7 @@ export const booking_statusSchema = {
 };
 export const check_inSchema = {
     body: Joi.object({
-        note: Joi.string().required().messages({
-            "string.empty": "note is required",
-        }),
+        note: Joi.string().optional(),
         agree: Joi.boolean().optional(),
         checkInDate: Joi.date().optional(),
         bookingId: Joi.string().hex().length(24).required().messages({
@@ -144,6 +145,9 @@ export const check_inSchema = {
 export const update_listingSchema = {
     body: Joi.object({
         address: Joi.string()
+            .trim()
+            .optional(),
+        city: Joi.string()
             .trim()
             .optional(),
 
@@ -208,6 +212,36 @@ export const update_listingSchema = {
         verified: Joi.boolean()
             .optional()
             .messages({ "boolean.base": "Verified must be a boolean" }),
+
+    })
+};
+export const write_review_and_ratingSchema = {
+    body: Joi.object({
+        listingId: Joi.string().hex().length(24).required().messages({
+            'string.hex': 'listingId must be a hexadecimal string',
+            'string.length': 'listingId length must be 24 characters',
+            "any.required": "listingId is required in Body"
+        }),
+        hostId: Joi.string().hex().length(24).required().messages({
+            'string.hex': 'hostId must be a hexadecimal string',
+            'string.length': 'hostId length must be 24 characters',
+            "any.required": "hostId is required in body"
+        }),
+        comment: Joi.string()
+            .trim()
+            .optional(),
+        communication: Joi.number()
+            .optional(),
+
+        accuracy: Joi.number()
+            .optional(),
+        safety: Joi.number()
+            .optional(),
+        cleanliness: Joi.number()
+            .optional(),
+        rentAgain: Joi.boolean()
+            .optional()
+            .messages({ "boolean.base": "rentAgain must be a boolean" }),
 
     })
 };

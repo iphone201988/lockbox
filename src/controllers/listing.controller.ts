@@ -10,7 +10,7 @@ import mongoose from "mongoose";
 export const createListing = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
         const userId = req.userId;
-        let { address, latitude, longitude, spaceType,
+        let { address, city, latitude, longitude, spaceType,
             features, allowedStorage, length, width, price, tagline,
             description, policies, accessPolicy, frequency, verified
         } = req.body;
@@ -34,7 +34,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
         const listing = new ListingModel(
             {
                 userId,
-                address, latitude, longitude, spaceType, features,
+                address, city, latitude, longitude, spaceType, features,
                 allowedStorage, length, width, price, tagline, description,
                 policies, accessPolicy, frequency, verified
             });
@@ -84,8 +84,25 @@ export const getAllListings = async (req: Request, res: Response, next: NextFunc
 
 
 // find all with near location  or length and width or price  or fectures or allowedStorage or sorting by price
-
-export const findListings = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+type SortOption =
+    | 'large_size'
+    | 'small_size'
+    | 'high_price'
+    | 'low_price'
+    | 'latest';
+interface QueryParams {
+    latitude?: string;
+    longitude?: string;
+    length?: string;
+    width?: string;
+    price?: string;
+    features?: string | string[];
+    allowedStorage?: string | string[];
+    sort?: SortOption;  // Use specific type instead of string
+    page?: string;
+    limit?: string;
+}
+export const findListings = async (req: Request<{}, {}, {}, QueryParams>, res: Response, next: NextFunction): Promise<any> => {
     try {
         let {
             latitude,
@@ -95,7 +112,7 @@ export const findListings = async (req: Request, res: Response, next: NextFuncti
             price, // Number
             features, // Array of Strings
             allowedStorage, // Array of Strings
-            sort = "latest", // oldest, high_price, low_price // recommend
+            sort = "large_size", // small_size, high_price, low_price (large_size  mean large to small and smallsize mean smal to large)
             page = "1", // Default Page = 1
             limit = "10" // Default Limit = 10
         } = req.query;
@@ -124,7 +141,7 @@ export const findListings = async (req: Request, res: Response, next: NextFuncti
 
         let matchStage: any = {
             userId: { $ne: userId }, // Uncomment if needed
-           status:"active"
+            status: "active"
         };
 
         if (length) matchStage.length = { $gte: Number(length) };
@@ -153,13 +170,16 @@ export const findListings = async (req: Request, res: Response, next: NextFuncti
         }
 
         // Sorting Logic
-        let sortStage: any = {};
-        if (sort === "latest") sortStage = { createdAt: -1 };
-        else if (sort === "oldest") sortStage = { createdAt: 1 };
-        else if (sort === "high_price") sortStage = { price: -1 };
-        else if (sort === "low_price") sortStage = { price: 1 };
-        else sortStage = { createdAt: -1 };
+        const sortOptions: Record<SortOption, any> = {
+            'large_size': { length: -1, width: -1 },
+            'small_size': { length: 1, width: 1 },
+            'high_price': { price: -1 },
+            'low_price': { price: 1 },
+            'latest': { createdAt: -1 },
+        };
 
+        // Use the sort value with fallback
+        const sortStage = sortOptions[sort] || sortOptions['latest'];
         pipeline.push({ $sort: sortStage });
 
         pipeline.push({
@@ -177,7 +197,6 @@ export const findListings = async (req: Request, res: Response, next: NextFuncti
                             allowedStorage: 1,
                             location: 1,
                             createdAt: 1,
-                            verified: 1,
                             userId: 1,
                             storageImages: 1,
                             tagline: 1,
@@ -186,6 +205,8 @@ export const findListings = async (req: Request, res: Response, next: NextFuncti
                             spaceType: 1,
                             frequency: 1,
                             description: 1,
+                            totalReviews: 1,
+                            averageRating: 1,
                             distance: 1 // Include distance if `$geoNear` is used
                         }
                     }
@@ -222,7 +243,7 @@ export const getListingById = async (req: Request, res: Response, next: NextFunc
                 $match: {
                     _id: new mongoose.Types.ObjectId(id),
                 },
-            },{
+            }, {
                 $lookup: {
                     from: 'booking', // Assuming your booking collection is named 'bookings'
                     let: { listingId: '$_id' },
@@ -246,7 +267,78 @@ export const getListingById = async (req: Request, res: Response, next: NextFunc
             },
             {
                 $addFields: {
-                    isBooked: { $gt: [{ $size: '$userBookings' }, 0] }
+                    isBooked: { $gt: [{ $size: '$userBookings' }, 0] },
+                }
+            },
+            {
+                $lookup: {
+                    from: 'booking', // Assuming your booking collection is named 'bookings'
+                    let: { listingId: '$_id' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ['$listingId', '$$listingId'] },
+                                        {
+                                            $in: ['$status', ['approve']]
+                                        }, {
+                                            $eq: ['$type', 'current']
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: 'bookingId'
+                }
+            },
+            { $unwind: { path: "$bookingId", preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: 'users',        
+                    localField: 'userId',    
+                    foreignField: '_id',
+                    as: 'userId',
+                    pipeline:[
+                        {
+                            $project:{
+                                _id:1, firstName:1, lastName:1, email:1, phone:1, profileImage:1,
+                            }
+                        }
+                    ]
+                },
+            },
+            {
+                $lookup: {
+                    from: 'review', 
+                    let: { listingId: new mongoose.Types.ObjectId(id) },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ['$listingId', '$$listingId'] },
+                                    ]
+                                }
+                            }
+                        }, {
+                            $lookup: {
+                                from: 'users',        
+                                localField: 'userId',    
+                                foreignField: '_id',
+                                as: 'userId',
+                                pipeline:[
+                                    {
+                                        $project:{
+                                            _id:1, firstName:1, lastName:1, email:1, phone:1, profileImage:1,
+                                        }
+                                    }
+                                ]
+                            },
+                        },
+                    ],
+                    as: 'reviews'
                 }
             },
             {
@@ -257,7 +349,7 @@ export const getListingById = async (req: Request, res: Response, next: NextFunc
         ];
         const result = await ListingModel.aggregate(pipeline);
         const listing = result[0];
-        return SUCCESS(res, 200, "Listing retrieved successfully", {listing});
+        return SUCCESS(res, 200, "Listing retrieved successfully", { listing });
     } catch (error) {
         next(error);
     }
@@ -267,7 +359,7 @@ export const updateListing = async (req: Request, res: Response, next: NextFunct
     try {
         const id = req.params.id;
         let {
-            address, latitude, longitude, spaceType,
+            address, city, latitude, longitude, spaceType,
             features, allowedStorage, length, width, price, tagline,
             description, policies, accessPolicy, frequency, images
         } = req.body;
@@ -288,7 +380,7 @@ export const updateListing = async (req: Request, res: Response, next: NextFunct
         if (typeof images === "string") {
             try {
                 images = JSON.parse(images);
-                console.log("images",images)
+                console.log("images", images)
             } catch (error) {
                 console.error("Error parsing images:", error);
                 throw new BadRequestError("Invalid images format");
@@ -311,6 +403,7 @@ export const updateListing = async (req: Request, res: Response, next: NextFunct
             };
         }
         if (address) listing.address = address;
+        if (city) listing.city = city;
         if (spaceType) listing.spaceType = spaceType;
         if (length) listing.length = length;
         if (width) listing.width = width;
@@ -324,13 +417,13 @@ export const updateListing = async (req: Request, res: Response, next: NextFunct
         if (allowedStorage) listing.allowedStorage = allowedStorage;
         if (images) listing.storageImages = images;
 
-        
+
         if (req.files && Array.isArray(req.files)) {
             if (req.files && Array.isArray(req.files)) {
                 const uploadedImages = req.files.map((file: any) => `/uploads/${file.filename}`);
                 listing.storageImages.push(...uploadedImages); // Push the new images into existing ones
             }
-    
+
         }
         await listing.save();
 

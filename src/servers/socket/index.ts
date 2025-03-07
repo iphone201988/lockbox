@@ -4,7 +4,7 @@ import { SocketWithUser } from "../../types/Database/types";
 import { authenticateSocket, handleDeliveredMessage, handleDisconnection, handleJoinRoom, handleLeaveRoom, handleReadMessage, handleSendMessage, handleStopTyping, handleTyping } from "./eventHandle";
 
 export let io: Server;
-
+export const userSocketMap = new Map<string, string>();
 // Initialize the Socket.IO server
 export const initSocket = (server: any) => {
   io = new Server(server, {
@@ -19,6 +19,8 @@ export const initSocket = (server: any) => {
 
   io.on("connection", (socket: SocketWithUser) => {
     console.log(`User connected: ${socket.userId}`);
+    userSocketMap.delete(socket.userId);
+    userSocketMap.set(socket.userId, socket.id);
 
     // Register event handlers
   socket.on("join_room", (data) => handleJoinRoom(socket, data));

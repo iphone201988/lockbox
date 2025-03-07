@@ -1,13 +1,16 @@
 import mongoose, { ObjectId, Schema } from "mongoose";
+import { UserModelType } from "../types/Database/types";
 
 interface IMessage extends Document {
     conversation: ObjectId;
-    sender: ObjectId;
+    sender: ObjectId | UserModelType;
     content: string;
     contentType: 'text' | 'video' | 'audio' | 'image';
     status: "sent" | "read";
     bookingId: ObjectId | null; // Linked to the property being rented
     bookingStatus: "pending" | "approved" | "rejected" | null; // Booking status
+    createdAt?: Date,
+    updatedAt?: Date
 }
 
 const messageSchema = new Schema<IMessage>(

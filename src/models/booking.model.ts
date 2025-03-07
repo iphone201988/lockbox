@@ -1,9 +1,10 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
+import { IListing } from "../types/Database/types";
 
 export interface IBooking extends Document {
     renterId: mongoose.Types.ObjectId;
     hostId: mongoose.Types.ObjectId;
-    listingId: mongoose.Types.ObjectId;
+    listingId: mongoose.Types.ObjectId | IListing;
     insuranceId: mongoose.Types.ObjectId;
     amount: number;
     serviceFee: number;
@@ -11,6 +12,11 @@ export interface IBooking extends Document {
     totalAmount: number;
     startDate: Date;
     endDate: Date;
+    totalMonth: number;
+    totalPaidMonthHost: number;
+    totalPaidMonthRent: number;
+    paymentMethodId: string | null;
+    currency: string;
     type: 'future' | 'current' | 'past' | 'dispute';
     status: 'under_review' | 'approve' | 'reject' | 'dispute';
     isBookingConfirmed: boolean;
@@ -39,6 +45,26 @@ const bookingSchema = new Schema<IBooking>(
         },
         endDate: {
             type: Date,
+        },
+        totalMonth :{
+            type: Number,
+            default: 1
+        },
+        totalPaidMonthHost:{
+            type:Number,
+            default:0
+        }, 
+        totalPaidMonthRent:{
+            type:Number,
+            default:0
+        }, 
+        paymentMethodId: {
+            type: String,
+            default: null,
+        },
+        currency:{
+            type:String,
+            default: 'cad',
         },
         type: {
             type: String,

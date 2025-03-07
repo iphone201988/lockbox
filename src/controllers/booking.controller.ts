@@ -10,6 +10,9 @@ import CheckInModel from "../models/cleckIn.model";
 import DisputeModel from "../models/dispute.model";
 import InsurancePlanModel from "../models/insurance.model";
 import TransactionModel from "../models/transaction.model";
+import NotificationModel from "../models/notification.model";
+import ListingModel from "../models/listing.model";
+import UserModel from "../models/user.model";
 
 //request booking
 
@@ -18,6 +21,10 @@ export const requestBooking = async (req: Request, res: Response, next: NextFunc
         const userId = req.userId;
         const userExists = req.user!;
         let { listingId, startDate, endDate, hostId, content, paymentMethodId, currency, insuranceId, amount, totalAmount, tax, serviceFee } = req.body;
+        const listing = await ListingModel.findById(listingId);
+        if (!listing) {
+            throw new NotFoundError("Listing not found");
+        }
         const paymentIntent = await stripe.paymentIntents.create({
             amount: Math.round(totalAmount * 100), // Convert to cents
             currency,
@@ -34,7 +41,7 @@ export const requestBooking = async (req: Request, res: Response, next: NextFunc
             throw new Error('Payment failed');
         }
         const booking = new BookingModel({
-            renterId: userId, hostId, listingId, startDate, endDate, insuranceId, amount, totalAmount, tax, serviceFee
+            renterId: userId, hostId, listingId, startDate, endDate, insuranceId, amount, totalAmount, tax, serviceFee, paymentMethodId, currency,
         });
         await booking.save();
         const transaction = new TransactionModel({
@@ -47,7 +54,19 @@ export const requestBooking = async (req: Request, res: Response, next: NextFunc
             paymentMethodId
         });
         await transaction.save();
-        await createMessage({ user1: userId, user2: hostId, content: content || "hello world", bookingId: booking._id })
+        await NotificationModel.create({
+            bookingId: booking._id,
+            userId: booking.hostId,
+            renterId: booking.renterId,
+            userRole: "host",
+            hostId: booking.hostId,
+            listingId: listing._id,
+            type: 1,
+            title: `${listing.spaceType} for storage in ${listing.city}.`,
+            body: `New request from ${userExists.email} ${userExists.lastName}.`,
+        })
+
+        await createMessage({ user1: userId, user2: hostId, content: content || "hello world", bookingId: booking._id });
         return SUCCESS(res, 201, "Booking created successfully", {});
     } catch (error) {
         next(error);
@@ -83,11 +102,11 @@ export const checkBooking = async (req: Request, res: Response, next: NextFuncti
                     endDate: { $lte: end }
                 }
             ]
-        }).lean(); 
+        }).lean();
 
         const isBooked = existingBookings.length > 0;
 
-        return SUCCESS(res, 200, "Availability checked successfully", { 
+        return SUCCESS(res, 200, "Availability checked successfully", {
             isBookingExist: isBooked,
             available: !isBooked,
             checkedDates: { startDate, endDate }
@@ -130,6 +149,36 @@ export const getAllBookingOfRenter = async (req: Request, res: Response, next: N
                 }
             },
             { $unwind: { path: "$listingId", preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: "checkIn",
+                    let: { bookingId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$bookingId", "$$bookingId"] },
+                                        { $eq: ["$userId", userId] },
+                                        { $eq: ["$type", "rent"] }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "checkIn"
+                }
+            },
+            {
+                $addFields: {
+                    isCheckIn: { $gt: [{ $size: "$checkIn" }, 0] }
+                }
+            },
+            {
+                $project: {
+                    checkIn: 0
+                }
+            },
             { $skip: skip },
             { $limit: pageSize },
         ]);
@@ -182,6 +231,36 @@ export const getAllBookingOfHost = async (req: Request, res: Response, next: Nex
                 }
             },
             { $unwind: { path: "$listingId", preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: "checkIn",
+                    let: { bookingId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$bookingId", "$$bookingId"] },
+                                        { $eq: ["$userId", userId] },
+                                        { $eq: ["$type", "host"] }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "checkIn"
+                }
+            },
+            {
+                $addFields: {
+                    isCheckIn: { $gt: [{ $size: "$checkIn" }, 0] }
+                }
+            },
+            {
+                $project: {
+                    checkIn: 0
+                }
+            },
             { $skip: skip },
             { $limit: pageSize },
         ]);
@@ -219,6 +298,9 @@ export const disputeStorage = async (req: Request, res: Response, next: NextFunc
             dispute.images = req.files.map((file: any) => `/uploads/${file.filename}`);
         }
         await dispute.save();
+        booking.type = "dispute";
+        booking.status = "under_review";
+        await booking.save();
 
         return SUCCESS(res, 200, "successfully", { dispute });
     } catch (error) {
@@ -230,12 +312,59 @@ export const bookingStatusUpdate = async (req: Request, res: Response, next: Nex
         const { bookingId } = req.params;
         const { status } = req.body;
 
-        const booking = await BookingModel.findById(bookingId);
+        const booking = await BookingModel.findById(bookingId).populate("listingId");
         if (!booking) {
             throw new NotFoundError(`Booking not found`);
         }
+        if (status == "approve") {
+            const renterExists = await UserModel.findById(booking.renterId);
+            const hostExists = await UserModel.findById(booking.hostId);
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: Math.round(booking.totalAmount * 100), // Convert to cents
+                currency: booking.currency,
+                customer: renterExists.stripeCustomerId,
+                description: `Payment from ${renterExists.email} `,
+                payment_method: booking.paymentMethodId,
+                confirm: true, // Immediately confirm the payment
+                automatic_payment_methods: {
+                    enabled: true,
+                    allow_redirects: 'never' // Prevents redirect flows
+                }
+            });
+            if (paymentIntent.status == "succeeded") {
+                await TransactionModel.create({
+                    paymentIntentId: paymentIntent.id,
+                    bookingId: booking._id,
+                    userId: renterExists._id,
+                    amount: booking.totalAmount,
+                    currency: booking.currency,
+                    status: paymentIntent.status,
+                    paymentMethodId: booking.paymentMethodId
+                });
+
+            }else{
+                throw new Error('Payment failed');
+            }
+
+
+        }
+        booking.totalPaidMonthHost = 1;
+        booking.totalPaidMonthRent = 1;
+        booking.status = status;
         booking.status = status;
         await booking.save();
+        const listing = booking.listingId as any;
+        await NotificationModel.create({
+            bookingId: bookingId,
+            userId: booking.renterId,
+            userRole: "rent",
+            renterId: booking.renterId,
+            hostId: booking.hostId,
+            listingId: listing?._id,
+            type: 2,
+            title: `${listing?.spaceType} for storage in ${listing?.city}.`,
+            body: `Your reservation was  ${status == "approve" ? "confirmed" : "not confirmed"}.`
+        })
 
         return SUCCESS(res, 200, "successfully", { booking });
     } catch (error) {
@@ -245,7 +374,7 @@ export const bookingStatusUpdate = async (req: Request, res: Response, next: Nex
 
 
 /// cleckIn
-export const cleckInBooking = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+export const checkInBooking = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
         const user = req.user;
         const { bookingId, agree, checkInDate, note } = req.body;

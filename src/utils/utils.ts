@@ -40,12 +40,15 @@ export async function createMessage({ user1, user2, content, contentType = 'text
     if (!conversation) {
         conversation = await ConversationModel.findOne({ participants: { $all: [user1, user2] }, bookingId });
         if (!conversation) {
+            if(!bookingId){
+                throw new Error('Booking id is required');
+            }
             conversation = new ConversationModel({ participants: [user1, user2], bookingId: bookingId});
         }
     }
     conversation.lastMessage = content;
     await conversation.save();
-    return MessageModel.create({
+   const message =  await MessageModel.create({
         content,
         contentType,
         sender: user1,
@@ -53,4 +56,30 @@ export async function createMessage({ user1, user2, content, contentType = 'text
         bookingId,
         bookingStatus: bookingId ? 'pending' : null
     });
+   const populatedMessage = await MessageModel.findById(message._id)
+    .populate({
+        path: 'sender',
+        select: '_id firstName lastName email phone profileImage countryCode dashboardRole'
+    })
+    .select('_id content createdAt updatedAt bookingId')
+    .lean()
+    .exec();
+    const sender = populatedMessage.sender as any;
+return {
+    _id: populatedMessage._id,
+    content: populatedMessage.content,
+    createdAt: populatedMessage.createdAt,
+    updatedAt: populatedMessage.updatedAt,
+    senderDetails: {
+        _id: sender?._id,
+        firstName: sender?.firstName,
+        lastName: sender?.lastName,
+        email: sender?.email,
+        phone: sender?.phone,
+        profileImage: sender?.profileImage,
+        countryCode: sender?.countryCode,
+        dashboardRole: sender?.dashboardRole
+    },
+    bookingId: populatedMessage.bookingId
+};
 }

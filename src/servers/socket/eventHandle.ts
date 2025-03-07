@@ -1,6 +1,6 @@
 // ------------------- Event Handlers -------------------
 
-import { io } from ".";
+import { io, userSocketMap } from ".";
 import MessageModel from "../../models/message.model";
 import UserModel from "../../models/user.model";
 import { SocketWithUser } from "../../types/Database/types";
@@ -46,6 +46,7 @@ export const authenticateSocket = async (socket: SocketWithUser, next: (err?: an
 export const handleDisconnection = async (socket: SocketWithUser) => {
     try {
         console.log(`User disconnected: ${socket.userId}`);
+        userSocketMap.delete(socket.userId);
         const user = await UserModel.findByIdAndUpdate(socket.userId, { isActive: false });
     } catch (error: any) {
         console.error("Error handling disconnection:", error.message);
@@ -168,14 +169,22 @@ export const handleDeliveredMessage = async (socket: SocketWithUser,data:string)
 /** Handle sending a message */
 export const handleSendMessage = async (
     socket: SocketWithUser,
-    data: string
+    data: string,
 ) => {
     try {
         const parseData: SendMessageType = JSON.parse(data);
         console.log("Received data:", parseData);
         const {conversationId, content, receiver, contentType} = parseData;
-        const message = await createMessage({ user1: socket.userId, user2:receiver,content, contentType})
-        io.to(conversationId).emit("receive_message", { conversationId, message });
+        const message = await createMessage({ user1: socket.userId, user2:receiver,content, contentType, conversationId});
+        // io.to(conversationId).emit("receive_message", { conversationId, message });
+        const messagePayload = { conversationId, message };
+        socket.emit("receive_message", messagePayload);
+        const receiverSocketId = userSocketMap.get(receiver);
+        if (receiverSocketId) {
+        io.to(receiverSocketId).emit("receive_message", messagePayload);
+        } else {
+        console.log(`Receiver ${receiver} is not currently connected`);
+        }
         console.log(`Message sent in room ${conversationId}:`, content);
     } catch (error: any) {
         socket.emit("error", error.message );

@@ -11,6 +11,10 @@ const listingSchema = new Schema<IListing>(
             type: String,
             default: null,
         },
+        city: {
+            type: String,
+            default: null,
+        },
         latitude: {
             type: Number,
             default: null,

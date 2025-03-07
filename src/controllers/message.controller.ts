@@ -35,23 +35,10 @@ export const getUserConversations = async (req: Request, res: Response, next: Ne
                 }
             },
             {
-                $lookup: {
-                    from: "booking",
-                    localField: "bookingId",
-                    foreignField: "_id",
-                    as: "bookingDetails"
-                }
-            },
-            {
-                $unwind: {
-                    path: "$bookingDetails",
-                    preserveNullAndEmptyArrays: true // Keep conversations without a booking
-                }
-            },
-            {
                 $project: {
                     _id: 1,
                     lastMessage: 1,
+                    bookingId: 1,
                     createdAt: 1,
                     updatedAt: 1,
                     participants: {
@@ -69,7 +56,6 @@ export const getUserConversations = async (req: Request, res: Response, next: Ne
                             }
                         }
                     },
-                    bookingDetails: 1
                 }
             },
             {
@@ -124,10 +110,11 @@ export const getConversationMessagesBetweenTwoUsers = async (req: Request, res: 
                 }
             },
             { $unwind: { path: "$bookingId", preserveNullAndEmptyArrays: true } },
+            
             {
                 $project: {
                     _id: 1,
-                    message: 1,
+                    content: 1,
                     createdAt: 1,
                     updatedAt: 1,
                     "senderDetails._id": 1,
@@ -135,9 +122,10 @@ export const getConversationMessagesBetweenTwoUsers = async (req: Request, res: 
                     "senderDetails.lastName": 1,
                     "senderDetails.email": 1,
                     "senderDetails.phone": 1,
+                    "senderDetails.profileImage": 1,
                     "senderDetails.countryCode": 1,
                     "senderDetails.dashboardRole": 1,
-                    "bookingId": 1,
+                    "bookingId": 1
 
                 }
             }
@@ -149,7 +137,12 @@ export const getConversationMessagesBetweenTwoUsers = async (req: Request, res: 
             limit: pageSize,
             totalPages: Math.ceil(totalCount / pageSize),
         };
-        const conversation = await ConversationModel.findById(conversationId).populate("bookingId");
+        const conversation = await ConversationModel.findById(conversationId).populate({
+            path: 'bookingId',
+            populate: {
+              path: 'listingId', 
+            }
+          });
         const conversationMessages = await MessageModel.aggregate(pipeline);
    
         return SUCCESS(res, 200, "Conversation messages retrieved successfully", {conversation, conversationMessages,pagination });
